@@ -35,6 +35,10 @@ puts "setting up source control with 'git'..."
 append_file '.gitignore' do <<-FILE
 '.DS_Store'
 '.rvmrc'
+log/*.log
+tmp/**/*
+config/database.yml
+db/*.sqlite3
 FILE
 end
 git :init
