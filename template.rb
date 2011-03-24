@@ -14,11 +14,13 @@ puts "Modifying a new Rails app to use RSpec, Cucumber, Factory Girl, MySQL and 
 # Configure
 #----------------------------------------------------------------------------
 
-if yes?('Would you like to use the Haml template system? (yes/no)')
-  haml_flag = true
-else
-  haml_flag = false
-end
+# if yes?('Would you like to use the Haml template system? (yes/no)')
+#   haml_flag = true
+# else
+#   haml_flag = false
+# end
+
+haml_flag = false
 
 #----------------------------------------------------------------------------
 # Create the database
@@ -323,14 +325,14 @@ append_file 'Gemfile' do <<-FILE
 gem "will_paginate", ">= 2.3.15"
 FILE
 end
-append_file 'Gemfile' do <<-FILE
-gem "rspec-rails", ">= 2.0.1"
-gem "cucumber-rails", ">= 0.3.2"
-gem "webrat", ">= 0.7.2.beta.2"
-gem "factory_girl_rails"
-gem "faker"
-FILE
-end
+# append_file 'Gemfile' do <<-FILE
+# gem "rspec-rails", ">= 2.0.1"
+# gem "cucumber-rails", ">= 0.3.2"
+# gem "webrat", ">= 0.7.2.beta.2"
+# gem "factory_girl_rails"
+# gem "faker"
+# FILE
+# end
 
 run 'bundle install'
 run 'script/rails generate rspec:install'
