@@ -8,19 +8,7 @@
 # and Rails::Generators::Actions
 # http://github.com/rails/rails/blob/master/railties/lib/rails/generators/actions.rb
 
-puts "Modifying a new Rails app to use RSpec, Cucumber, Factory Girl, MySQL and Devise"
-
-#----------------------------------------------------------------------------
-# Configure
-#----------------------------------------------------------------------------
-
-# if yes?('Would you like to use the Haml template system? (yes/no)')
-#   haml_flag = true
-# else
-#   haml_flag = false
-# end
-
-haml_flag = false
+puts "Modifying a new Rails app to use SQLite and Devise"
 
 #----------------------------------------------------------------------------
 # Create the database
@@ -35,12 +23,22 @@ puts "setting up source control with 'git'..."
 # specific to Mac OS X
 
 append_file '.gitignore' do <<-FILE
-'.DS_Store'
-'.rvmrc'
-log/*.log
+.DS_Store
+Thumbs.db
+.rvmrc
+*.log
+*.swp
+*.pid
+*~ 
+.redcar
 tmp/**/*
 config/database.yml
 db/*.sqlite3
+.idea
+public/uploads/
+nbproject/
+public/static/
+public/system/
 FILE
 end
 git :init
@@ -52,32 +50,15 @@ git :commit => "-m 'Initial commit of unmodified new Rails app'"
 #----------------------------------------------------------------------------
 puts "removing unneeded files..."
 run 'rm public/index.html'
-run 'rm public/favicon.ico'
 run 'rm public/images/rails.png'
 run 'rm README'
 run 'touch README'
 
-puts "banning spiders from your site by changing robots.txt..."
-gsub_file 'public/robots.txt', /# User-Agent/, 'User-Agent'
-gsub_file 'public/robots.txt', /# Disallow/, 'Disallow'
-
-#----------------------------------------------------------------------------
-# Haml Option
-#----------------------------------------------------------------------------
-if haml_flag
-  puts "setting up Gemfile for Haml..."
-  append_file 'Gemfile', "\n# Bundle gems needed for Haml\n"
-  gem 'haml', '3.0.18'
-  gem 'haml-rails', '0.2', :group => :development
-  # the following gems are used to generate Devise views for Haml
-  gem 'hpricot', '0.8.2', :group => :development
-  gem 'ruby_parser', '2.0.5', :group => :development
-end
 
 #----------------------------------------------------------------------------
 # jQuery Option
 #----------------------------------------------------------------------------
-gem 'jquery-rails', '0.2.3'
+gem 'jquery-rails', '1.0.11'
 
 #----------------------------------------------------------------------------
 # Set up jQuery
@@ -93,7 +74,7 @@ run 'rails generate jquery:install --ui'
 #----------------------------------------------------------------------------
 puts "setting up Gemfile for Devise..."
 append_file 'Gemfile', "\n# Bundle gem needed for Devise\n"
-gem 'devise', '1.1.3'
+gem 'devise', '1.3.4'
 
 puts "installing Devise gem (takes a few minutes!)..."
 run 'bundle install'
@@ -150,22 +131,11 @@ def index
 RUBY
 end
 
-if haml_flag
-  run 'rm app/views/home/index.html.haml'
-  # we have to use single-quote-style-heredoc to avoid interpolation
-  create_file 'app/views/home/index.html.haml' do 
-<<-'FILE'
-- @users.each do |user|
-  %p User: #{link_to user.email, user}
-FILE
-  end
-else
-  append_file 'app/views/home/index.html.erb' do <<-FILE
+append_file 'app/views/home/index.html.erb' do <<-FILE
 <% @users.each do |user| %>
   <p>User: <%=link_to user.email, user %></p>
 <% end %>
   FILE
-  end
 end
 
 #----------------------------------------------------------------------------
@@ -189,104 +159,76 @@ before_filter :authenticate_user!
 RUBY
 end
 
-if haml_flag
-  run 'rm app/views/users/show.html.haml'
-  # we have to use single-quote-style-heredoc to avoid interpolation
-  create_file 'app/views/users/show.html.haml' do <<-'FILE'
-%p
-  User: #{@user.email}
-  FILE
-  end
-else
-  append_file 'app/views/users/show.html.erb' do <<-FILE
+append_file 'app/views/users/show.html.erb' do <<-FILE
 <p>User: <%= @user.email %></p>
-  FILE
-  end
+FILE
 end
 
-if haml_flag
-  create_file "app/views/devise/menu/_login_items.html.haml" do <<-'FILE'
-- if user_signed_in?
-  %li
-    = link_to('Logout', destroy_user_session_path)
-- else
-  %li
-    = link_to('Login', new_user_session_path)
-  FILE
-  end
-else
-  create_file "app/views/devise/menu/_login_items.html.erb" do <<-FILE
+create_file "app/views/devise/menu/_login_items.html.erb" do <<-FILE
 <% if user_signed_in? %>
-  <li>
-  <%= link_to('Logout', destroy_user_session_path) %>        
-  </li>
+<li>
+<%= link_to('Logout', destroy_user_session_path) %>        
+</li>
 <% else %>
-  <li>
-  <%= link_to('Login', new_user_session_path)  %>  
-  </li>
+<li>
+<%= link_to('Login', new_user_session_path)  %>  
+</li>
 <% end %>
-  FILE
-  end
+FILE
 end
 
-if haml_flag
-  create_file "app/views/devise/menu/_registration_items.html.haml" do <<-'FILE'
-- if user_signed_in?
-  %li
-    = link_to('Edit account', edit_user_registration_path)
-- else
-  %li
-    = link_to('Sign up', new_user_registration_path)
-  FILE
-  end
-else
-  create_file "app/views/devise/menu/_registration_items.html.erb" do <<-FILE
+create_file "app/views/devise/menu/_registration_items.html.erb" do <<-FILE
 <% if user_signed_in? %>
-  <li>
-  <%= link_to('Edit account', edit_user_registration_path) %>
-  </li>
+<li>
+<%= link_to('Edit account', edit_user_registration_path) %>
+</li>
 <% else %>
-  <li>
-  <%= link_to('Sign up', new_user_registration_path)  %>
-  </li>
+<li>
+<%= link_to('Sign up', new_user_registration_path)  %>
+</li>
 <% end %>
-  FILE
-  end
+FILE
 end
+
+puts "Setup blueprint"
+get "https://raw.github.com/joshuaclayton/blueprint-css/master/blueprint/screen.css", "public/stylesheets/screen.css"
+get "https://raw.github.com/joshuaclayton/blueprint-css/master/blueprint/ie.css", "public/stylesheets/ie.css"
+get "https://raw.github.com/joshuaclayton/blueprint-css/master/blueprint/print.css", "public/stylesheets/print.css"
 
 #----------------------------------------------------------------------------
 # Generate Application Layout
 #----------------------------------------------------------------------------
-if haml_flag
-  run 'rm app/views/layouts/application.html.erb'
-  create_file 'app/views/layouts/application.html.haml' do <<-FILE
-!!!
-%html
-  %head
-    %title Testapp
-    = stylesheet_link_tag :all
-    = javascript_include_tag :defaults
-    = csrf_meta_tag
-  %body
-    %ul.hmenu
-      = render 'devise/menu/registration_items'
-      = render 'devise/menu/login_items'
-    %p{:style => "color: green"}= notice
-    %p{:style => "color: red"}= alert
-    = yield
-FILE
-  end
-else
-  inject_into_file 'app/views/layouts/application.html.erb', :after => "<body>\n" do
-  <<-RUBY
+gsub_file 'app/views/layouts/application.html.erb', /<%= stylesheet_link_tag :all %>\n/, ''
+
+
+inject_into_file 'app/views/layouts/application.html.erb', :after => "</title>\n" do
+<<-RUBY
+<link rel="stylesheet" href="/stylesheets/screen.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="/stylesheets/print.css" type="text/css" media="print">
+<!--[if lt IE 8]>
+  <link rel="stylesheet" href="/stylesheets/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+<link rel="stylesheet" href="/stylesheets/application.css" type="text/css" media="print">
+RUBY
+end
+
+
+inject_into_file 'app/views/layouts/application.html.erb', :after => "<body>\n" do
+<<-RUBY
+<div class="container"> 
 <ul class="hmenu">
-  <%= render 'devise/menu/registration_items' %>
-  <%= render 'devise/menu/login_items' %>
+<%= render 'devise/menu/registration_items' %>
+<%= render 'devise/menu/login_items' %>
 </ul>
 <p style="color: green"><%= notice %></p>
 <p style="color: red"><%= alert %></p>
 RUBY
-  end
+end
+
+inject_into_file 'app/views/layouts/application.html.erb', :before => "\n</body>" do
+<<-RUBY
+</div>
+RUBY
 end
 
 #----------------------------------------------------------------------------
@@ -311,7 +253,7 @@ end
 puts "creating a default user"
 append_file 'db/seeds.rb' do <<-FILE
 puts 'SETTING UP DEFAULT USER LOGIN'
-user = User.create! :email => 'user@test.com', :password => 'please', :password_confirmation => 'please'
+user = User.create! :email => 'holin.he@gmail.com', :password => 'please', :password_confirmation => 'please'
 puts 'New user created'
 FILE
 end
@@ -322,17 +264,9 @@ run 'rake db:seed'
 #----------------------------------------------------------------------------
 puts 'Setting up RSpec, Cucumber, factory_girl, faker'
 append_file 'Gemfile' do <<-FILE
-gem "will_paginate", ">= 2.3.15"
+gem "will_paginate", '3.0.pre2'
 FILE
-end
-# append_file 'Gemfile' do <<-FILE
-# gem "rspec-rails", ">= 2.0.1"
-# gem "cucumber-rails", ">= 0.3.2"
-# gem "webrat", ">= 0.7.2.beta.2"
-# gem "factory_girl_rails"
-# gem "faker"
-# FILE
-# end
+end 
 
 run 'bundle install'
 run 'script/rails generate rspec:install'
