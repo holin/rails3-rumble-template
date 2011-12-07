@@ -58,8 +58,8 @@ run 'touch README'
 #----------------------------------------------------------------------------
 # jQuery Option
 #----------------------------------------------------------------------------
-gem 'jquery-rails', '1.0.11'
-
+gem 'jquery-rails', '1.0.19'
+run 'bundle install'
 #----------------------------------------------------------------------------
 # Set up jQuery
 #----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ run 'rails generate jquery:install --ui'
 #----------------------------------------------------------------------------
 puts "setting up Gemfile for Devise..."
 append_file 'Gemfile', "\n# Bundle gem needed for Devise\n"
-gem 'devise', '1.3.4'
+gem 'devise', '1.5.1'
 
 puts "installing Devise gem (takes a few minutes!)..."
 run 'bundle install'
