@@ -167,7 +167,7 @@ end
 create_file "app/views/devise/menu/_login_items.html.erb" do <<-FILE
 <% if user_signed_in? %>
 <li>
-<%= link_to('Logout', destroy_user_session_path) %>        
+<%= link_to('Logout', destroy_user_session_path, :method => :delete) %>        
 </li>
 <% else %>
 <li>
